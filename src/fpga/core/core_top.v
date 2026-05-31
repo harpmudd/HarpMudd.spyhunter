@@ -650,15 +650,15 @@ assign video_hs           = vid_hs_r;
 
 // -- Audio -------------------------------------------------------------------
 // SSIO outputs 16-bit unsigned (audio_l/r). CSD outputs 10-bit (csd_audio).
-// MiSTer top mixes: AUDIO = audio_l + {csd_audio, 5'd0}. We do the same with
-// 1-bit headroom and saturate to avoid wrap on overflow.
+// Mix exactly as MiSTer top does: AUDIO = audio_l + {csd_audio, 5'd0}.
+// Natural 16-bit wrap on rare overflow (clicks instead of dropouts).
+// Earlier saturating mix at <<6 made CSD 2x too loud and clipped SSIO
+// SFX to silence when music + effect overlapped.
 // Same 40 MHz / 1024 box-filter decimator that worked for Tapper.
 
-wire [15:0] csd_audio_ext = {csd_audio, 6'd0};   // 10-bit -> 16-bit (<<6 = MiSTer's <<5 plus an extra)
-wire [16:0] mix_l = {1'b0, audio_l_raw} + {1'b0, csd_audio_ext};
-wire [16:0] mix_r = {1'b0, audio_r_raw} + {1'b0, csd_audio_ext};
-wire [15:0] audio_l_mixed = mix_l[16] ? 16'hFFFF : mix_l[15:0];
-wire [15:0] audio_r_mixed = mix_r[16] ? 16'hFFFF : mix_r[15:0];
+wire [15:0] csd_audio_ext = {1'b0, csd_audio, 5'd0};  // 10-bit -> 16-bit (<<5, matches MiSTer)
+wire [15:0] audio_l_mixed = audio_l_raw + csd_audio_ext;
+wire [15:0] audio_r_mixed = audio_r_raw + csd_audio_ext;
 
 reg  [9:0]  aud_div     = 10'd0;
 reg  [25:0] aud_accum_l = 26'd0, aud_accum_r = 26'd0;
