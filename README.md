@@ -58,6 +58,13 @@ and Dar; without their work this port wouldn't exist.
   and the Cheap Squeak Deluxe *Peter Gunn* music both play — but the relative
   balance between them is still being optimized. A future update will refine it.
 
+## ROMs
+
+ROMs are **not** included and are never distributed with this core. Supply your
+own Spy Hunter MAME romset and build the ROM image yourself. (A bundled `.mra`
+build recipe — like the other HarpMudd cores ship — is planned for a future
+update.)
+
 ## Credits
 
 - **Original arcade game:** Bally Midway (1983)
