@@ -18,3 +18,7 @@ quartus_build.log
 
 # Note: dist/ IS committed on purpose — it holds the built bitstream + ROM image,
 # so reverting to a baseline gives a deployable core without recompiling.
+
+# Python bytecode cache (regenerated whenever a *.py is imported)
+__pycache__/
+*.pyc
