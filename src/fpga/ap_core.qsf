@@ -764,9 +764,6 @@ set_global_assignment -name VHDL_FILE rtl/dpram.vhd
 set_global_assignment -name VHDL_FILE rtl/gen_ram.vhd
 # Pre-initialized PROMs (synthesized into BRAMs at compile -- no dl_addr load)
 set_global_assignment -name VHDL_FILE rtl/rom/midssio_82s123.vhd
-set_global_assignment -name VHDL_FILE rtl/rom/spy_hunter_bg_bits_1.vhd
-set_global_assignment -name VHDL_FILE rtl/rom/spy_hunter_bg_bits_2.vhd
-set_global_assignment -name VHDL_FILE rtl/rom/spy_hunter_ch_bits.vhd
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to bridge_1wire
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to bridge_spiclk
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to bridge_spimiso
