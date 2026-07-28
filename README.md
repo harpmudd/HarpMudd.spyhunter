@@ -1,7 +1,7 @@
 # Spy Hunter — Analogue Pocket
 
-An Analogue Pocket port of **Spy Hunter** (Bally Midway, 1983) by **HarpMudd**,
-built on the openFPGA framework.
+An Analogue Pocket port of **Spy Hunter** (Bally Midway, 1983), built on the
+openFPGA framework.
 
 ## The Game
 
