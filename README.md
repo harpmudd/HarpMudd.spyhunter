@@ -40,11 +40,22 @@ steer with the controller's d-pad; the analog stick isn't used.
 **SFX Volume** and **Music Volume** (0–10) set the balance between the sound
 effects and the music.
 
+## Versions
+
+Spy Hunter is at the top of the game list; the Playtronic release is in
+`_alternatives`.
+
+| Menu entry | Set |
+|---|---|
+| Spy Hunter | `spyhunt` |
+| Spy Hunter (Playtronic) | `spyhuntp` |
+
 ## ROMs
 
-ROMs are **not** included. Build `spyhunt.rom` from your own MAME `spyhunt.zip`
-with the `.mra` recipe in `dist/Assets/spyhunter/common/` (`mra spyhunt.mra`),
-and put it in `Assets/spyhunter/common/` on your SD card.
+ROMs are **not** included. Build each `.rom` from your own MAME romset with
+the `.mra` recipe in `dist/Assets/spyhunter/common/` (e.g. `mra spyhunt.mra`),
+and put it in `Assets/spyhunter/common/` on your SD card. The Playtronic set
+also needs the parent `spyhunt.zip`.
 
 ## Credits
 

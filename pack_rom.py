@@ -91,6 +91,25 @@ SPYHUNTER_ROM_DEFS = [
     (0x936dc87f,  4096, "cpu_alph.10g (character / alpha ROM)",     0x40000, None),
 ]
 
+# Spy Hunter (Playtronic license), MAME "spyhuntp": same board, three ROMs
+# differ -- main program blocks 0 and 4, and a 2 KB alpha ROM (the upper 2 KB
+# of its 4 KB region stays zero, as in MAME's ROM_START).
+_SPYHUNTP_SWAP = {
+    0x1721b88f: (0xdf6cd642, 8192, "sh_mb_2.bin (Z80 main prog block 0, Playtronic)"),
+    0xa3033c15: (0x8cbf04d8, 8192, "sh_mb_6.bin (Z80 main prog block 4, Playtronic)"),
+    0x936dc87f: (0x5c74c9f0, 2048, "sh_mb_1.bin (alpha ROM, 2 KB, Playtronic)"),
+}
+SPYHUNTP_ROM_DEFS = [
+    (*_SPYHUNTP_SWAP[d[0]], d[3], d[4]) if d[0] in _SPYHUNTP_SWAP else d
+    for d in SPYHUNTER_ROM_DEFS
+]
+
+# set name -> (ROM list, output file). The set name is the MAME romset and
+# the .mra name; the core loads whichever .rom the menu entry points at.
+SETS = {
+    "spyhunt":  (SPYHUNTER_ROM_DEFS, "spyhunt.rom"),
+    "spyhuntp": (SPYHUNTP_ROM_DEFS,  "spyhuntp.rom"),
+}
 OUT_NAME = "spyhunt.rom"
 
 
@@ -122,18 +141,11 @@ def load_dir_by_crc(zip_dir):
     return found
 
 
-def main():
-    out_path = os.path.join(ASSETS_DIR, OUT_NAME)
-    print("ROM packer - Spy Hunter (Bally Midway, 1983)")
-    print(f"Output: {out_path}\n")
-    print(f"Scanning all zips in: {DEFAULT_ZIP_DIR}")
-    found = load_dir_by_crc(DEFAULT_ZIP_DIR)
-    print()
-
+def build(found, defs, out_name):
+    out_path = os.path.join(ASSETS_DIR, out_name)
     image = bytearray(ROM_IMAGE_SIZE)
     errors = []
-
-    for (crc, size, d, offset, mirror) in SPYHUNTER_ROM_DEFS:
+    for (crc, size, d, offset, mirror) in defs:
         if crc in found:
             data = found[crc]
             if len(data) != size:
@@ -145,19 +157,34 @@ def main():
             print(f"  OK          {d}  @ 0x{offset:05X}")
         else:
             errors.append(f"  MISSING     {d}  (CRC {crc:08x})")
-
-    print()
     if errors:
-        print("MISSING OR INVALID ROMs:")
+        print(f"\nSKIPPED {out_name} -- missing or invalid ROMs:")
         for e in errors:
             print(e)
-        sys.exit(1)
-
+        return False
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "wb") as f:
         f.write(image)
+    print(f"SUCCESS: wrote {len(image)} bytes -> {out_path}\n")
+    return True
 
-    print(f"\nSUCCESS: wrote {len(image)} bytes -> {out_path}")
+
+def main():
+    """python pack_rom.py [setname ...]   (default: every set whose ROMs are present)"""
+    wanted = sys.argv[1:] or list(SETS)
+    print("ROM packer - Spy Hunter (Bally Midway, 1983)")
+    print(f"Scanning all zips in: {DEFAULT_ZIP_DIR}")
+    found = load_dir_by_crc(DEFAULT_ZIP_DIR)
+    print()
+    built = []
+    for name in wanted:
+        defs, out_name = SETS[name]
+        print(f"[{name}]")
+        if build(found, defs, out_name):
+            built.append(name)
+    # The primary set is required (the build needs it); clones are optional.
+    if "spyhunt" in wanted and "spyhunt" not in built:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
