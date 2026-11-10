@@ -318,12 +318,45 @@ core_bridge_cmd icb (
     .datatable_q               (datatable_q)
 );
 
+// -- Interact menu: SFX / Music volume (interact.json ids 0,1) ---------------
+// 0..10 = 0..100 %, default 10 (= the mix as tested). Written by APF in the
+// clk_74a domain; values above 10 are clamped. Read back for the menu.
+reg [3:0] vol_sfx_74   = 4'd10;
+reg [3:0] vol_music_74 = 4'd10;
+// DIP switches (SSIO IP3) + service switch (IP0 bit 7), interact ids 2..4.
+// Defaults = MAME spyhunt: Game Timer 1:30, Demo Sounds On, service off.
+reg opt_timer_74   = 1'b1;   // 1 = 1:30, 0 = 1:00
+reg opt_demo_74    = 1'b1;   // 1 = demo sounds ON
+reg opt_service_74 = 1'b0;   // 1 = service/test mode switch ON
+always @(posedge clk_74a) begin
+    if (bridge_wr && bridge_addr == 32'h20000000)
+        vol_sfx_74   <= (bridge_wr_data > 32'd10) ? 4'd10 : bridge_wr_data[3:0];
+    if (bridge_wr && bridge_addr == 32'h20000004)
+        vol_music_74 <= (bridge_wr_data > 32'd10) ? 4'd10 : bridge_wr_data[3:0];
+    if (bridge_wr && bridge_addr == 32'h20000008) opt_timer_74   <= bridge_wr_data[0];
+    if (bridge_wr && bridge_addr == 32'h2000000C) opt_demo_74    <= bridge_wr_data[0];
+    if (bridge_wr && bridge_addr == 32'h20000010) opt_service_74 <= bridge_wr_data[0];
+end
+
 always @(*) begin
     casex (bridge_addr)
         32'hF8xxxxxx: bridge_rd_data = cmd_bridge_rd_data;
+        32'h20000000: bridge_rd_data = {28'd0, vol_sfx_74};
+        32'h20000004: bridge_rd_data = {28'd0, vol_music_74};
+        32'h20000008: bridge_rd_data = {31'd0, opt_timer_74};
+        32'h2000000C: bridge_rd_data = {31'd0, opt_demo_74};
+        32'h20000010: bridge_rd_data = {31'd0, opt_service_74};
         default:      bridge_rd_data = 32'h0;
     endcase
 end
+
+// into clk_sys (static levels)
+reg [2:0] opt_s1, opt_s;
+always @(posedge clk_sys) begin
+    opt_s1 <= {opt_service_74, opt_demo_74, opt_timer_74};
+    opt_s  <= opt_s1;
+end
+wire opt_timer = opt_s[0], opt_demo = opt_s[1], opt_service = opt_s[2];
 
 // -- ROM loading via APF bridge ----------------------------------------------
 // Spy Hunter image is 0x41000 bytes -> dn_addr needs 19 bits.
@@ -411,13 +444,13 @@ always @(posedge clk_sys) begin
 end
 
 // -- SSIO Sound ROM (8 KB) ---------------------------------------------------
-// Pre-init from snd_rom.hex at FPGA config time so byte 0 (Z80 reset vector)
-// is guaranteed correct -- avoids any data_loader stream timing issues that
-// could leave the SSIO Z80 executing garbage. Tapper pattern.
+// Filled ONLY by the data loader, like every other ROM. There is deliberately
+// no $readmemh pre-init: that baked 8 KB of copyrighted SSIO program into the
+// distributed bitstream. Safe without it -- game_reset_n waits for
+// rom_loaded, so the SSIO Z80 never fetches before the loader has written it.
 wire [12:0] snd_rom_addr;
 reg  [7:0]  snd_rom_do_r;
 (* ramstyle = "M10K" *) reg [7:0] snd_rom_mem [0:8191];
-initial $readmemh("snd_rom.hex", snd_rom_mem);
 wire [12:0] snd_rom_waddr = dn_addr[12:0];   // 0x0E000-0x0FFFF maps to 0x0000-0x1FFF
 always @(posedge clk_sys) begin
     if (snd_rom_we) snd_rom_mem[snd_rom_waddr] <= dn_data;
@@ -604,9 +637,9 @@ spy_hunter spy_hunter_core (
     .show_lamps     (1'b0),
     .steering       (steering_emu),
     .gas            (gas_emu),
-    .timer          (1'b1),
-    .demo_sound     (1'b1),
-    .service        (1'b0),             // cont1_key[13] not mapped on Pocket; revert until proper button found
+    .timer          (opt_timer),        // IP3 bit0: 1 = 1:30 (MAME default), 0 = 1:00
+    .demo_sound     (~opt_demo),        // IP3 bit1: 0 = demo sounds ON (MAME default)
+    .service        (opt_service),      // IP0 bit7 service switch, from the menu
 
     .cpu_rom_addr   (cpu_rom_addr),
     .cpu_rom_do     (cpu_rom_do_r),
@@ -657,8 +690,31 @@ assign video_hs           = vid_hs_r;
 // Same 40 MHz / 1024 box-filter decimator that worked for Tapper.
 
 wire [15:0] csd_audio_ext = {1'b0, csd_audio, 5'd0};  // 10-bit -> 16-bit (<<5, matches MiSTer)
-wire [15:0] audio_l_mixed = audio_l_raw + csd_audio_ext;
-wire [15:0] audio_r_mixed = audio_r_raw + csd_audio_ext;
+
+// Menu volumes, synchronised into clk_sys (quasi-static; a one-sample tear
+// while the user moves the slider is inaudible). Gain = vol * 25.6 (x/256).
+reg [3:0] vol_sfx_s1, vol_sfx, vol_music_s1, vol_music;
+always @(posedge clk_sys) begin
+    vol_sfx_s1   <= vol_sfx_74;   vol_sfx   <= vol_sfx_s1;
+    vol_music_s1 <= vol_music_74; vol_music <= vol_music_s1;
+end
+function [8:0] vol_gain(input [3:0] v);
+    case (v)
+        4'd0: vol_gain = 9'd0;    4'd1: vol_gain = 9'd26;  4'd2: vol_gain = 9'd51;
+        4'd3: vol_gain = 9'd77;   4'd4: vol_gain = 9'd102; 4'd5: vol_gain = 9'd128;
+        4'd6: vol_gain = 9'd154;  4'd7: vol_gain = 9'd179; 4'd8: vol_gain = 9'd205;
+        4'd9: vol_gain = 9'd230;  default: vol_gain = 9'd256;
+    endcase
+endfunction
+reg  [24:0] sfx_l_p, sfx_r_p, mus_p;
+always @(posedge clk_sys) begin
+    sfx_l_p <= audio_l_raw   * vol_gain(vol_sfx);
+    sfx_r_p <= audio_r_raw   * vol_gain(vol_sfx);
+    mus_p   <= csd_audio_ext * vol_gain(vol_music);
+end
+
+wire [15:0] audio_l_mixed = sfx_l_p[23:8] + mus_p[23:8];
+wire [15:0] audio_r_mixed = sfx_r_p[23:8] + mus_p[23:8];
 
 reg  [9:0]  aud_div     = 10'd0;
 reg  [25:0] aud_accum_l = 26'd0, aud_accum_r = 26'd0;

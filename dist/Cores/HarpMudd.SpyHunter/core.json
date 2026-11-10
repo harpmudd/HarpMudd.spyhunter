@@ -3,12 +3,12 @@
         "magic": "APF_VER_1",
         "metadata": {
             "platform_ids": ["spyhunter"],
-            "shortname": "spyhunter",
+            "shortname": "SpyHunter",
             "description": "Spy Hunter (Bally Midway, 1983)",
             "author": "HarpMudd",
             "url": "",
-            "version": "0.1.0",
-            "date_release": "2026-05-24"
+            "version": "1.0.0",
+            "date_release": "2026-11-10"
         },
         "framework": {
             "target_product": "Analogue Pocket",

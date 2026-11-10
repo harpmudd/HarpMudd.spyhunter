@@ -91,7 +91,7 @@ SPYHUNTER_ROM_DEFS = [
     (0x936dc87f,  4096, "cpu_alph.10g (character / alpha ROM)",     0x40000, None),
 ]
 
-OUT_NAME = "spyhunter.rom"
+OUT_NAME = "spyhunt.rom"
 
 
 def crc32_of(data):

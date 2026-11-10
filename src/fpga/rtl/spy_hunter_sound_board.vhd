@@ -168,7 +168,32 @@ architecture struct of spy_hunter_sound_board is
  signal snd_1    : std_logic_vector(17 downto 0);
  signal snd_2    : std_logic_vector(17 downto 0);
  signal snd_mono : std_logic_vector(18 downto 0);
- 
+
+ -- SSIO duty-cycle volume as a GAIN (x/256), not 50 kHz PWM gating. The PWM
+ -- aliased against the 40 MHz/1024 (~39 kHz) output decimator; on the board it
+ -- is smoothed by the analog path, so a gain is the faithful model.
+ -- Values = average on-time of the original counter/PROM logic: voice muted
+ -- until n falling edges of the 82S123 bit stream (edges at clocks
+ -- 40,71,94,111,124,133,139,144,147,150,152 of 160), i.e. 1 - t(n)/160.
+ -- A clean ~-2.6 dB/step log taper; n >= 12 never un-mutes. (MAME's lookup in
+ -- midway_sound.cpp stores t(15-n)/160 instead, contradicting its own comment
+ -- and the board -- deliberately NOT copied.)
+ type gain_array is array(0 to 15) of integer range 0 to 256;
+ constant DUTY_GAIN : gain_array := (256,190,141,104,77,56,42,32,24,19,14,11,0,0,0,0);
+
+ function duty_scale(s : std_logic_vector(7 downto 0);
+                     n : std_logic_vector(3 downto 0);
+                     mute : std_logic) return std_logic_vector is
+   variable p : integer range 0 to 255*256;
+ begin
+   if mute = '1' then return x"00"; end if;
+   p := to_integer(unsigned(s)) * DUTY_GAIN(to_integer(unsigned(n)));
+   return std_logic_vector(to_unsigned(p / 256, 8));
+ end function;
+
+ -- Global mute: AY #2 port B bit 7 (MAME midway_ssio portb1_w: m_mute = data & 0x80)
+ signal ssio_mute : std_logic;
+
 begin
 
 clock_snd  <= clock_40;
@@ -373,17 +398,18 @@ begin
 			end if;
 		end if;
 		
+		-- duty-cycle volume applied as gain (see DUTY_GAIN); PWM counters above are now unused
 		case ay1_audio_chan is
-		when "00" => if modulation_counter_a1 = x"0" then ch_a1 <= ay1_audio_muxed; else ch_a1 <= (others => '0'); end if;
-		when "01" => if modulation_counter_b1 = x"0" then ch_b1 <= ay1_audio_muxed; else ch_b1 <= (others => '0'); end if;
-		when "10" => if modulation_counter_c1 = x"0" then ch_c1 <= ay1_audio_muxed; else ch_c1 <= (others => '0'); end if;
+		when "00" => ch_a1 <= duty_scale(ay1_audio_muxed, ay1_port_a(3 downto 0), ssio_mute);
+		when "01" => ch_b1 <= duty_scale(ay1_audio_muxed, ay1_port_a(7 downto 4), ssio_mute);
+		when "10" => ch_c1 <= duty_scale(ay1_audio_muxed, ay1_port_b(3 downto 0), ssio_mute);
 		when others => null;
 		end case;
-		
+
 		case ay2_audio_chan is
-		when "00" => if modulation_counter_a2 = x"0" then ch_a2 <= ay2_audio_muxed; else ch_a2 <= (others => '0'); end if;
-		when "01" => if modulation_counter_b2 = x"0" then ch_b2 <= ay2_audio_muxed; else ch_b2 <= (others => '0'); end if;
-		when "10" => if modulation_counter_c2 = x"0" then ch_c2 <= ay2_audio_muxed; else ch_c2 <= (others => '0'); end if;
+		when "00" => ch_a2 <= duty_scale(ay2_audio_muxed, ay2_port_a(3 downto 0), ssio_mute);
+		when "01" => ch_b2 <= duty_scale(ay2_audio_muxed, ay2_port_a(7 downto 4), ssio_mute);
+		when "10" => ch_c2 <= duty_scale(ay2_audio_muxed, ay2_port_b(3 downto 0), ssio_mute);
 		when others => null;
 		end case;
 		
@@ -404,6 +430,8 @@ begin
 		
 	end if;	
 end process;
+
+ssio_mute <= ay2_port_b(7);
 
 snd_mono <= ('0'&snd_1) + ('0'&snd_2);
 
@@ -507,7 +535,7 @@ port map(
   I_BDIR     => ay1_bdir,  -- in  std_logic; -- pin 27
   I_BC2      => '1',       -- in  std_logic; -- pin 28
   I_BC1      => ay1_bc1,   -- in  std_logic; -- pin 29
-  I_SEL_L    => '0',       -- in  std_logic;
+  I_SEL_L    => '1',       -- in  std_logic; -- '1' = AY-3-8910 rate (clk/8). Was '0' (YM /16): every SSIO sound an octave low
 
   O_AUDIO    => ay1_audio_muxed, -- out std_logic_vector(7 downto 0);
   O_CHAN     => ay1_audio_chan,  -- out std_logic_vector(1 downto 0);
@@ -540,7 +568,7 @@ port map(
   I_BDIR     => ay2_bdir,  -- in  std_logic; -- pin 27
   I_BC2      => '1',       -- in  std_logic; -- pin 28
   I_BC1      => ay2_bc1,   -- in  std_logic; -- pin 29
-  I_SEL_L    => '0',       -- in  std_logic;
+  I_SEL_L    => '1',       -- in  std_logic; -- '1' = AY-3-8910 rate (clk/8). Was '0' (YM /16): every SSIO sound an octave low
 
   O_AUDIO    => ay2_audio_muxed, -- out std_logic_vector(7 downto 0);
   O_CHAN     => ay2_audio_chan,  -- out std_logic_vector(1 downto 0);

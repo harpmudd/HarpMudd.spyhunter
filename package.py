@@ -5,7 +5,7 @@ Steps:
   1. Verify the bitstream exists in src/fpga/output_files/
   2. Convert .rbf -> .rbf_r (BIT-REVERSED bitstream for Pocket -- mandatory)
   3. Copy bitstream to dist/Cores/HarpMudd.spyhunter/bitstream.rbf_r
-  4. Run pack_rom.py to generate spyhunter.rom (if not already present)
+  4. Run pack_rom.py to generate spyhunt.rom (if not already present)
   5. Print copy instructions for the Pocket SD card
 
 The .rbf_r suffix LITERALLY MEANS bit-reversed. Do NOT just rename .rbf to
@@ -24,7 +24,7 @@ PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 BITSTREAM_SRC = os.path.join(PROJECT_ROOT, "src", "fpga", "output_files", "ap_core.rbf")
 DIST_CORE     = os.path.join(PROJECT_ROOT, "dist", "Cores", "HarpMudd.spyhunter")
 BITSTREAM_DST = os.path.join(DIST_CORE, "bitstream.rbf_r")
-ROM_DST       = os.path.join(PROJECT_ROOT, "dist", "Assets", "spyhunter", "common", "spyhunter.rom")
+ROM_DST       = os.path.join(PROJECT_ROOT, "dist", "Assets", "spyhunter", "common", "spyhunt.rom")
 PACK_ROM_PY   = os.path.join(PROJECT_ROOT, "pack_rom.py")
 
 

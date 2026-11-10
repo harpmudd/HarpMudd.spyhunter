@@ -3,9 +3,43 @@
         "magic": "APF_VER_1",
         "controllers": [
             {
-                "type": "gamepad",
+                "type": "default",
                 "mappings": [
-                    { "type": "analog_stick", "axis": "left", "target": "dpad" }
+                    {
+                        "id": 0,
+                        "name": "Machine Guns",
+                        "key": "pad_btn_a"
+                    },
+                    {
+                        "id": 1,
+                        "name": "Missiles",
+                        "key": "pad_btn_b"
+                    },
+                    {
+                        "id": 2,
+                        "name": "Smoke Screen",
+                        "key": "pad_btn_x"
+                    },
+                    {
+                        "id": 3,
+                        "name": "Oil Slick",
+                        "key": "pad_btn_y"
+                    },
+                    {
+                        "id": 4,
+                        "name": "Gear Shift",
+                        "key": "pad_trig_l"
+                    },
+                    {
+                        "id": 5,
+                        "name": "Weapons Van",
+                        "key": "pad_btn_start"
+                    },
+                    {
+                        "id": 6,
+                        "name": "Insert Coin",
+                        "key": "pad_btn_select"
+                    }
                 ]
             }
         ]

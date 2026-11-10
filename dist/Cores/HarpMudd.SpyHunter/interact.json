@@ -1,7 +1,40 @@
 {
     "interact": {
         "magic": "APF_VER_1",
-        "variables": [],
+        "variables": [
+            {
+                "name": "SFX Volume",
+                "id": 0,
+                "type": "slider_u32",
+                "enabled": true,
+                "persist": true,
+                "address": "0x20000000",
+                "defaultval": 10,
+                "graphical": {
+                    "signed": false,
+                    "min": 0,
+                    "max": 10,
+                    "adjust_small": 1,
+                    "adjust_large": 2
+                }
+            },
+            {
+                "name": "Music Volume",
+                "id": 1,
+                "type": "slider_u32",
+                "enabled": true,
+                "persist": true,
+                "address": "0x20000004",
+                "defaultval": 10,
+                "graphical": {
+                    "signed": false,
+                    "min": 0,
+                    "max": 10,
+                    "adjust_small": 1,
+                    "adjust_large": 2
+                }
+            }
+        ],
         "messages": []
     }
 }

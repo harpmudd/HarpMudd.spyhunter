@@ -60,7 +60,10 @@ begin
 		int_reg_1 <= '0';
 		int_reg_2 <= '0';
 		int_reg_3 <= '0';
-		load_data_r <= load_data;
+		-- Constant, not "<= load_data": an async load of a live signal can't be
+		-- a Cyclone V flop, so Quartus built a latch clocked by reset. '1' gives
+		-- the same no-edge-at-reset-release behaviour.
+		load_data_r <= '1';
 		int_vector <= (others => '0');
 	else 
 		if rising_edge(clock) then
