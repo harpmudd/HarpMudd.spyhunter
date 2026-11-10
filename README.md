@@ -32,8 +32,8 @@ van. Hit the water and the car becomes a boat, all to the *Peter Gunn* theme.
 | **Start** | Weapons van |
 | **Select** | Insert coin (1 press = 1 credit) |
 
-Buttons can be remapped from the Pocket's Controls screen. A docked
-controller's left stick doesn't act as a d-pad.
+Buttons can be remapped from the Pocket's Controls screen. In the Dock,
+steer with the controller's d-pad; the analog stick isn't used.
 
 ## Settings
 
