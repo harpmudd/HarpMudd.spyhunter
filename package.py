@@ -73,9 +73,11 @@ def main():
             print("\nBuilding ROM image...")
             result = subprocess.run([sys.executable, PACK_ROM_PY], capture_output=False)
             if result.returncode != 0:
-                print("\nROM build failed. Package incomplete.")
-                print("Provide a complete MAME romset and re-run.")
-                sys.exit(1)
+                # Not fatal: the .rom is never part of the distribution (users
+                # build it from the .mra). The bitstream above is complete.
+                print("\nNOTE: no ROM image built (MAME spyhunt.zip not found).")
+                print("The core is packaged; to play locally, put spyhunt.zip beside")
+                print("this repo (or set HARPMUDD_ROMS) and run pack_rom.py.")
 
     # 3. Summary
     print("\n=== Package contents ===")
