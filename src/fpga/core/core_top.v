@@ -444,13 +444,13 @@ always @(posedge clk_sys) begin
 end
 
 // -- SSIO Sound ROM (8 KB) ---------------------------------------------------
-// Pre-init from snd_rom.hex at FPGA config time so byte 0 (Z80 reset vector)
-// is guaranteed correct -- avoids any data_loader stream timing issues that
-// could leave the SSIO Z80 executing garbage. Tapper pattern.
+// Filled ONLY by the data loader, like every other ROM. There is deliberately
+// no $readmemh pre-init: that baked 8 KB of copyrighted SSIO program into the
+// distributed bitstream. Safe without it -- game_reset_n waits for
+// rom_loaded, so the SSIO Z80 never fetches before the loader has written it.
 wire [12:0] snd_rom_addr;
 reg  [7:0]  snd_rom_do_r;
 (* ramstyle = "M10K" *) reg [7:0] snd_rom_mem [0:8191];
-initial $readmemh("snd_rom.hex", snd_rom_mem);
 wire [12:0] snd_rom_waddr = dn_addr[12:0];   // 0x0E000-0x0FFFF maps to 0x0000-0x1FFF
 always @(posedge clk_sys) begin
     if (snd_rom_we) snd_rom_mem[snd_rom_waddr] <= dn_data;

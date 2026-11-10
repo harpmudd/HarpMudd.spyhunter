@@ -5,85 +5,62 @@ openFPGA framework.
 
 ## The Game
 
-Spy Hunter puts you behind the wheel of the G-6155 Interceptor, a weaponized
-super-car barreling down an endless highway. Dodge and destroy a rogue's
-gallery of enemy vehicles — the Switchblade, Enforcer, Bulletproof Bully, Mad
-Bomber and Road Lord — using twin machine guns and special weapons (oil slicks,
-smoke screens, missiles) collected from the weapons van. Hit the water and the
-car becomes a boat. All of it set to a driving rendition of the *Peter Gunn*
-theme. A genre-defining vertical-scrolling action classic.
+Drive the G-6155 Interceptor down an endless highway, taking out enemy cars
+with machine guns, missiles, oil slicks and smoke screens from the weapons
+van. Hit the water and the car becomes a boat, all to the *Peter Gunn* theme.
 
 ## Hardware
 
-Spy Hunter runs on Bally Midway's **MCR3** board — one of the more ambitious
-arcade designs of its era, with three processors:
-
 | Part | Role |
 |---|---|
-| Zilog Z80 | Main CPU — gameplay, video |
-| Zilog Z80 (SSIO board) | Sound effects, driving dual AY-3-8910 PSGs |
-| Motorola 68000 (Cheap Squeak Deluxe) | Music — the *Peter Gunn* theme |
-| Display | Vertical CRT, 15 kHz, RGB |
-
-## The Port
-
-Built on the excellent MiSTer **Arcade-SpyHunter** core:
-
-- **MiSTer port:** Sorgelig (2019)
-- **FPGA arcade hardware implementation:** Dar — [darfpga](https://darfpga.blogspot.fr) (darfpga@aol.fr)
-
-This Analogue Pocket build adapts that RTL to the openFPGA / APF framework —
-all three CPUs running, SSIO + Cheap Squeak Deluxe audio, rendered at 480×480
-31 kHz progressive in the original vertical orientation. Huge thanks to Sorgelig
-and Dar; without their work this port wouldn't exist.
+| Zilog Z80 @ 5 MHz | Main CPU |
+| Zilog Z80 + 2× AY-3-8910 (SSIO) | Sound effects |
+| Motorola 68000 + DAC (Cheap Squeak Deluxe) | Music |
+| Display | Vertical CRT, 480×480 |
 
 ## Controls
 
 | Pocket | Action |
 |---|---|
-| **D-Pad ←/→** | Steer |
-| **D-Pad ↑** | Accelerate |
-| **D-Pad ↓** | Brake |
+| **D-Pad ← / →** | Steer |
+| **D-Pad ↑ / ↓** | Accelerate / slow down |
 | **A** | Machine guns |
 | **B** | Missiles |
 | **X** | Smoke screen |
 | **Y** | Oil slick |
-| **L (shoulder)** | Gear shift (Hi/Lo) |
-| **Start** | Weapons van (pull alongside to re-arm) |
+| **L** | Gear shift (hold) |
+| **Start** | Weapons van |
 | **Select** | Insert coin (1 press = 1 credit) |
 
-## Notes & Caveats
+Buttons can be remapped from the Pocket's Controls screen. A docked
+controller's left stick doesn't act as a d-pad.
 
-- **Audio tuning is in progress.** Both sound boards work — SSIO sound effects
-  and the Cheap Squeak Deluxe *Peter Gunn* music both play — but the relative
-  balance between them is still being optimized. A future update will refine it.
+## Settings
+
+**SFX Volume** and **Music Volume** (0–10) set the balance between the sound
+effects and the music.
 
 ## ROMs
 
-ROMs are **not** included and are never distributed with this core. Supply your
-own Spy Hunter MAME romset and build the ROM image yourself. (A bundled `.mra`
-build recipe — like the other HarpMudd cores ship — is planned for a future
-update.)
+ROMs are **not** included. Build `spyhunt.rom` from your own MAME `spyhunt.zip`
+with the `.mra` recipe in `dist/Assets/spyhunter/common/` (`mra spyhunt.mra`),
+and put it in `Assets/spyhunter/common/` on your SD card.
 
 ## Credits
 
 - **Original arcade game:** Bally Midway (1983)
-- **MiSTer Arcade-SpyHunter port:** Sorgelig
-- **FPGA arcade core:** Dar (darfpga)
-- **Analogue Pocket port:** HarpMudd
-- **Z80 CPU core (T80):**
-  - **Daniel Wallner** — original author (2001–2002, OpenCores)
-  - **Mike Johnson / MikeJ** (FPGAArcade) — DJNZ M1_n fix, clock enable, IM 2 fix
-    and interrupt-ack fix (v0232–0240); project tidy-up, March 2005 (Ver 300)
-  - **Sean Riddle** — parity flag for 8080 vs Z80 (Ver 301)
-  - **TobiFlex** — undocumented DDCB / FDCB opcodes (Ver 303, 20 April 2010)
-  - **Alexey Melnikov (Sorgelig)** — timing accuracy and ZEXDOC / ZEXALL /
-    Z80Full / Z80memptr verification (Ver 350, 2018), and the `T80pa`
-    pseudo-asynchronous top level
-- **YM2149 (AY-3-8910) sound core:** Mike Johnson / [MikeJ](https://www.fpgaarcade.com) (FPGAArcade), Jan 2005
-- **SDRAM controller, data loader, I2S audio, sync FIFO:** Adam Gastineau (agg23)
-- **openFPGA framework (APF), bridge command handler, reference `core_top`:** Analogue
-- **PLL and other megafunctions:** Intel/Altera (Quartus-generated)
+- **MAME MCR3 and sound board drivers:** [Aaron Giles](https://github.com/aaronsgiles)
+- **MAME AY-3-8910 model:** [Couriersud](https://github.com/couriersud)
+- **FPGA arcade core:** Dar ([darfpga](https://darfpga.blogspot.fr))
+- **MiSTer port:** [Sorgelig](https://github.com/Sorgelig)
+- **Analogue Pocket port:** [HarpMudd](https://github.com/harpmudd)
+- **Z80 CPU (T80):** [Daniel Wallner](https://opencores.org/projects/t80), [MikeJ](https://www.fpgaarcade.com), [Sean Riddle](http://seanriddle.com), [TobiFlex](https://github.com/TobiFlex), [Sorgelig](https://github.com/Sorgelig)
+- **68000 CPU (FX68K):** [Jorge Cwik](https://github.com/ijor/fx68k)
+- **6821 PIA:** John E. Kent
+- **RAM modules:** [Peter Wendrich](https://www.syntiac.com)
+- **YM2149 sound:** [MikeJ](https://www.fpgaarcade.com)
+- **Data loader, I2S audio, sync FIFO:** [agg23](https://github.com/agg23)
+- **openFPGA framework:** [Analogue](https://www.analogue.co)
 
 ## About / Support
 
