@@ -172,8 +172,8 @@ assign bridge_endian_little = 1'b0;  // big-endian
 
 // -- PLL ---------------------------------------------------------------------
 // 74.25 MHz in -> 40 MHz (clk_sys / spy_hunter.clock_40)
-//                10 MHz (clk_vid / pixel clock)
-//                10 MHz 90deg (clk_vid_90 / APF DDR pixel clock)
+//                20 MHz (clk_vid / pixel clock)
+//                20 MHz 90deg (clk_vid_90 / APF DDR pixel clock)
 wire clk_sys;
 wire clk_vid;
 wire clk_vid_90;

@@ -1,5 +1,5 @@
-// mf_pllbase.v - PLL wrapper for Tapper (MCR3) Pocket core
-// 74.25 MHz in -> 40 MHz (clk_sys) + 10 MHz (clk_vid) + 10 MHz 90 deg (clk_vid_90)
+// mf_pllbase.v - PLL wrapper for the Spy Hunter (MCR3) Pocket core
+// 74.25 MHz in -> 40 MHz (clk_sys) + 20 MHz (clk_vid) + 20 MHz 90 deg (clk_vid_90)
 `timescale 1 ps / 1 ps
 module mf_pllbase (
     input  wire  refclk,
