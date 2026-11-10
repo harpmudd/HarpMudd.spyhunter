@@ -5,7 +5,7 @@
 	<manufacturer>Bally Midway</manufacturer>
 	<!--
 	  HarpMudd Spy Hunter - Analogue Pocket core ROM recipe (no copyrighted data).
-	  Build:  mra spyhunter.mra   then copy the .rom into Assets/spyhunter/common/.
+	  Build:  mra spyhunt.mra   then copy the .rom into Assets/spyhunter/common/.
 	-->
 	<rom index="0" zip="spyhunt.zip" md5="none">
 		<part crc="1721b88f" name="cpu_pg0.6d"></part>

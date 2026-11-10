@@ -1,0 +1,38 @@
+<misterromdescription>
+	<name>Spy Hunter (Playtronic license)</name>
+	<setname>spyhuntp</setname>
+	<year>1983</year>
+	<manufacturer>Bally Midway (Playtronic license)</manufacturer>
+	<!--
+	  HarpMudd Spy Hunter (Playtronic license) - Analogue Pocket core ROM recipe (no copyrighted data).
+	  Build:  mra spyhuntp.mra   then copy the .rom into Assets/spyhunter/common/.
+	-->
+	<rom index="0" zip="spyhuntp.zip|spyhunt.zip" md5="none">
+		<part crc="df6cd642" name="sh_mb_2.bin"></part>
+		<part crc="909d044f" name="cpu_pg1.7d"></part>
+		<part crc="afeeb8bd" name="cpu_pg2.8d"></part>
+		<part crc="5e744381" name="cpu_pg3.9d"></part>
+		<part crc="8cbf04d8" name="sh_mb_6.bin"></part>
+		<part crc="88aa1e99" name="cpu_pg5.11d"></part>
+		<part crc="c95cf31e" name="snd_0sd.a8"></part>
+		<part crc="12aaa48e" name="snd_1sd.a7"></part>
+		<part crc="0d9ddce6" name="csd_u17b.u17"></part>
+		<part crc="63d3f5b1" name="csd_u18d.u18"></part>
+		<part crc="6e689fe7" name="csd_u7a.u7"></part>
+		<part crc="35563cd0" name="csd_u8c.u8"></part>
+		<part crc="9fe286ec" name="vid_1fg.a7"></part>
+		<part crc="292c5466" name="vid_0fg.a8"></part>
+		<part crc="b894934d" name="vid_3fg.a5"></part>
+		<part crc="62c8bfa5" name="vid_2fg.a6"></part>
+		<part crc="2d9fbcec" name="vid_5fg.a3"></part>
+		<part crc="7ca4941b" name="vid_4fg.a4"></part>
+		<part crc="940fe17e" name="vid_7fg.a1"></part>
+		<part crc="8cb8a066" name="vid_6fg.a2"></part>
+		<part crc="dea34fed" name="cpu_bg0.3a"></part>
+		<part crc="8f64525f" name="cpu_bg1.4a"></part>
+		<part crc="ba0fd626" name="cpu_bg2.5a"></part>
+		<part crc="7b482d61" name="cpu_bg3.6a"></part>
+		<part crc="5c74c9f0" name="sh_mb_1.bin"></part>
+		<part repeat="2048"> 00 </part>
+	</rom>
+</misterromdescription>
