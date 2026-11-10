@@ -1,5 +1,5 @@
 #
-# user core constraints — Pac-Man Pocket core
+# user core constraints — Spy Hunter Pocket core
 #
 # All clock domains are asynchronous to each other.
 # ic = core_top instance in apf_top; mp1 = PLL instance in core_top.
