@@ -529,6 +529,14 @@ wire m_coin    = cont1_key[14];
 // Spy Hunter's default coinage (without NVRAM init load) is 2 coins / 1 credit
 // on the coin1 slot. The pulse generator below converts a single SELECT press
 // into two distinct coin1 rising edges so the user gets 1 credit per click.
+// The Playtronic release (spyhuntp) defaults to 1 coin / 1 credit, so it gets
+// ONE pulse. Which set is loaded is read off the ROM as it streams in: image
+// byte 0x00072 is 0x48 in spyhunt and 0x08 in spyhuntp (main program block 0).
+// The neighbouring default-coinage table at 0x013BC also differs, 02 vs 01.
+reg        coin_single    = 1'b0;
+always @(posedge clk_sys)
+    if (dn_wr && dn_addr == 19'h00072) coin_single <= (dn_data == 8'h08);
+
 reg        m_coin_prev    = 1'b0;
 reg [1:0]  coin_state     = 2'd0;
 reg [22:0] coin_timer     = 23'd0;
@@ -559,9 +567,13 @@ always @(posedge clk_sys) begin
         2'd2: begin                                  // gap (coin1 low)
             coin1_internal <= 1'b0;
             if (coin_timer == 23'd0) begin
-                coin1_internal <= 1'b1;
-                coin_timer     <= COIN_PULSE_LEN;
-                coin_state     <= 2'd3;
+                if (coin_single) begin               // spyhuntp: 1 coin = 1 credit
+                    coin_state     <= 2'd0;
+                end else begin
+                    coin1_internal <= 1'b1;
+                    coin_timer     <= COIN_PULSE_LEN;
+                    coin_state     <= 2'd3;
+                end
             end else coin_timer <= coin_timer - 1'b1;
         end
         2'd3: begin                                  // second pulse high
