@@ -70,8 +70,12 @@ begin
 		restart_on_next_trigger <= '0';
 		count_in  <= (others=> '0');
 		zc_to_in <= '0';
-		clk_trg_r <= clk_trg;
-	else 
+		-- Constant, not "<= clk_trg": async load of a live signal became a latch
+		-- clocked by reset. Safe: the counter is stopped after reset (count_ena
+		-- and restart flags cleared), so no edge is acted on before the CPU
+		-- programs it, by which time clk_trg_r has tracked clk_trg for ages.
+		clk_trg_r <= '0';
+	else
 		if rising_edge(clock) then
 			if clock_ena = '1' then
 			

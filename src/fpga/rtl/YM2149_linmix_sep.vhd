@@ -366,7 +366,11 @@ begin
     end if;
   end process;
 
-  p_envelope_shape       : process(env_reset, reg, CLK)
+  -- Envelope reset is SYNCHRONOUS (was an async load of reg(13)-dependent data,
+  -- which Cyclone V can only build as a latch clocked by env_reset). env_reset
+  -- is a register held until the next ENA tick, so the load lands on the same
+  -- edge the async version released on: envelope timing is unchanged.
+  p_envelope_shape       : process(CLK)
     variable is_bot    : boolean;
     variable is_bot_p1 : boolean;
     variable is_top_m1 : boolean;
@@ -393,7 +397,8 @@ begin
         -- 1 1 1 0  /\/\
         --
         -- 1 1 1 1  /___
-    if (env_reset = '1') then
+    if rising_edge(CLK) then
+     if (env_reset = '1') then
       -- load initial state
       if (reg(13)(2) = '0') then -- attack
         env_vol <= "11111";
@@ -404,7 +409,7 @@ begin
       end if;
       env_hold <= '0';
 
-    elsif rising_edge(CLK) then
+     else
       is_bot    := (env_vol = "00000");
       is_bot_p1 := (env_vol = "00001");
       is_top_m1 := (env_vol = "11110");
@@ -456,6 +461,7 @@ begin
           end if;
         end if;
       end if;
+     end if;
     end if;
   end process;
 
