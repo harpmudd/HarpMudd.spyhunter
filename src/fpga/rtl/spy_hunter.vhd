@@ -453,7 +453,10 @@ begin
 					end if;
 
 					video_vblank <= '1';
-					if vcnt >= 1 and vcnt < 480 then
+					-- 0..479 = 480 lines, matching MAME visarea and video.json. Was
+					-- "vcnt >= 1": 479 lines, leaving one Pocket line undriven
+					-- (faint pink line at the right edge after rotation; cf. Tapper 90414a2).
+					if vcnt < 480 then
 						video_vblank <= '0';
 					end if;
 

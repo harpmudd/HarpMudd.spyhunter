@@ -506,41 +506,29 @@ begin
         end if;
       end if;
 
-      dac_amp <= x"00";
-      case chan_amp is
-        when "11111" => dac_amp <= x"FF";
-        when "11110" => dac_amp <= x"D9";
-        when "11101" => dac_amp <= x"BA";
-        when "11100" => dac_amp <= x"9F";
-        when "11011" => dac_amp <= x"88";
-        when "11010" => dac_amp <= x"74";
-        when "11001" => dac_amp <= x"63";
-        when "11000" => dac_amp <= x"54";
-        when "10111" => dac_amp <= x"48";
-        when "10110" => dac_amp <= x"3D";
-        when "10101" => dac_amp <= x"34";
-        when "10100" => dac_amp <= x"2C";
-        when "10011" => dac_amp <= x"25";
-        when "10010" => dac_amp <= x"1F";
-        when "10001" => dac_amp <= x"1A";
-        when "10000" => dac_amp <= x"16";
-        when "01111" => dac_amp <= x"13";
-        when "01110" => dac_amp <= x"10";
-        when "01101" => dac_amp <= x"0D";
-        when "01100" => dac_amp <= x"0B";
-        when "01011" => dac_amp <= x"09";
-        when "01010" => dac_amp <= x"08";
-        when "01001" => dac_amp <= x"07";
-        when "01000" => dac_amp <= x"06";
-        when "00111" => dac_amp <= x"05";
-        when "00110" => dac_amp <= x"04";
-        when "00101" => dac_amp <= x"03";
-        when "00100" => dac_amp <= x"03";
-        when "00011" => dac_amp <= x"02";
-        when "00010" => dac_amp <= x"02";
-        when "00001" => dac_amp <= x"01";
-        when "00000" => dac_amp <= x"00";
-        when others => null;
+      -- AY-3-8910 output curve (MAME ay8910.cpp active ay8910_param, Westcott
+      -- measurements, RL=1000, normalised to 0..255). The AY has 16 levels and a
+      -- 16-step envelope, so the 5-bit index is taken as chan_amp(4 downto 1):
+      -- fixed volume v maps to v exactly (chan_amp = v&1); YM2149 32-step curve
+      -- it replaces ran 1-2.5 dB quiet through the mid range.
+      case chan_amp(4 downto 1) is
+        when "1111" => dac_amp <= x"FF";
+        when "1110" => dac_amp <= x"CA";
+        when "1101" => dac_amp <= x"99";
+        when "1100" => dac_amp <= x"78";
+        when "1011" => dac_amp <= x"5A";
+        when "1010" => dac_amp <= x"44";
+        when "1001" => dac_amp <= x"31";
+        when "1000" => dac_amp <= x"1E";
+        when "0111" => dac_amp <= x"18";
+        when "0110" => dac_amp <= x"0F";
+        when "0101" => dac_amp <= x"0B";
+        when "0100" => dac_amp <= x"08";
+        when "0011" => dac_amp <= x"06";
+        when "0010" => dac_amp <= x"05";
+        when "0001" => dac_amp <= x"03";
+        when "0000" => dac_amp <= x"00";
+        when others => dac_amp <= x"00";
       end case;
 
       cnt_div_t1 <= cnt_div;
